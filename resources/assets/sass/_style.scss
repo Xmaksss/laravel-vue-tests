@@ -1,0 +1,11 @@
+
+.nav.nav-pills {
+    a.router-link-active:hover,
+    a.router-link-active:focus {
+        background: #27AE60;
+    }
+    a.router-link-active {
+        background: #2ECC71;
+        color: #fff;
+    }
+}
