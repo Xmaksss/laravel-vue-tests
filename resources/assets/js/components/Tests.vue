@@ -1,11 +1,40 @@
 <template>
     <div id="tests">
         <button class="btn btn-success" v-if="!showForm" v-on:click="showForm = true">Add new test</button>
-        <add-test-form v-if="showForm" v-on:testAdded="showForm = false"></add-test-form>
-        <ul>
-            <li>test 1</li>
-            <li>test 2</li>
-        </ul>
+        <add-test-form v-if="showForm" v-on:testAdded="testAdded" v-on:cancelForm="cancelForm"></add-test-form>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Count Questions</th>
+                    <th width="180px">Tools</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(test,index) in tests">
+                    <td>
+                        <span v-if="testEditing != index" v-on:dblclick="testEdit(index)"><router-link v-bind:to="'test/' + test.id">{{test.title}}</router-link></span>
+                        <div class="form-group" v-else>
+                            <input type="text" class="form-control" v-model="title">
+                        </div>
+                    </td>
+                    <td>
+                        <span v-if="testEditing != index">{{test.count_questions}}</span>
+                        <div class="form-group" v-else>
+                            <input type="number" min="1" class="form-control" v-model="countQuestions">
+                        </div>
+                    </td>
+                    <td>
+                        <button v-if="testEditing != index" v-on:click="testEdit(index)" class="btn btn-primary">Edit</button>
+                        <button v-if="testEditing != index" v-on:click="testDelete(index)" class="btn btn-danger">Delete</button>
+
+                        <button v-if="testEditing == index" v-on:click="testUpdate(index)" class="btn btn-info">Update</button>
+                        <button v-if="testEditing == index" v-on:click="testEditing = null" class="btn btn-default">Cencel</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </template>
 
@@ -16,11 +45,70 @@
     export default {
         data() {
             return {
-                showForm: false
+                showForm: false,
+                tests: [],
+                testEditing: null,
+                title: '',
+                countQuestions: 1
             }
         },
         components: {
             'add-test-form': AddTestForm
+        },
+        mounted() {
+            this.$http.get('/api/tests').then(res => {
+                //console.log(res);
+                this.tests = res.body.tests;
+            }, err => {
+                console.error(err);
+            });
+        },
+        methods: {
+            testAdded(test) {
+                this.showForm = false;
+                this.tests.push(test);
+            },
+            cancelForm() {
+                this.showForm = false;
+            },
+            testEdit(index) {
+                this.testEditing = index;
+                this.title = this.tests[index].title;
+                this.countQuestions = this.tests[index].count_questions;
+            },
+            testUpdate(index) {
+                let data = {
+                    test_id: this.tests[index].id,
+                    title: this.title,
+                    count_questions: this.countQuestions
+                }
+                this.$http.post('/api/tests/update', data).then(res => {
+                    if(res.body.status) {
+                        this.testEditing = null;
+                        this.tests[index].title = this.title;
+                        this.tests[index].count_questions = this.countQuestions;
+                    }
+                }, err => {
+
+                });
+            },
+            testDelete(index) {
+                let data = {
+                    test_id: this.tests[index].id
+                }
+                if(confirm('Delete test?', false)) {
+                    this.$http.post('/api/tests/delete', data).then(res => {
+                   
+                        if(res.body.status) {
+                            this.tests.splice(index, 1);
+                        } else {
+                            console.log('Error');
+                        }
+                    }, err => {
+                        console.error(err);
+                    })
+                }
+            }
         }
     }
 </script>

@@ -14,16 +14,17 @@ require('./bootstrap');
  */
 
 import Tests from './components/Tests.vue';
+import TestItem from './components/TestItem.vue';
+
 import Questions from './components/Questions.vue';
 
 import ParseQuestions from './components/ParseQuestions.vue';
-
-import { routes } from './apiRoutes.js';
 
 const router = new VueRouter({
     routes: [
         {path: '/', redirect: '/tests'},
         {path: '/tests', component: Tests},
+        {path: '/test/:testId', component: TestItem},
         {path: '/questions', component: Questions},
         {path: '/parse-questions', component: ParseQuestions}
     ]
@@ -33,9 +34,9 @@ const app = new Vue({
     el: '#app',
     router: router,
     data: {
-        apiRoutes: routes
+        
     },
     mounted() {
-        console.log(routes);
+        //console.log(routes);
     }
 });

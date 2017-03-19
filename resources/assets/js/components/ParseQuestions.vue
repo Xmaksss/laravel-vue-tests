@@ -75,28 +75,4 @@
     #parse-questions textarea {
         resize: vertical;
     }
-    .questions ul {
-        list-style: none;
-    }
-    .questions>ul {
-        padding: 0;
-    }
-    .questions>ul>li>p {
-        font-weight: bold;
-    }
-    .questions>ul ul{
-        padding-left: 12px;
-    }
-    .questions label {
-        padding: 3px;
-        padding-left: 8px;
-        font-weight: normal;
-    }
-    .questions label input {
-        margin-right: 8px;
-    }
-    .questions .right {
-        background: #2ECC71;
-        color: #fff;
-    }
 </style>

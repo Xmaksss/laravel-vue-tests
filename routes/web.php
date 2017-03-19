@@ -18,3 +18,28 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index');
+
+Route::group(['prefix' => 'api'], function() {
+    Route::get('tests', [
+        'uses' => 'TestController@getTests'
+    ]);
+    Route::post('tests', [
+        'uses' => 'TestController@postTest'
+    ]);
+    Route::post('tests/update', [
+        'uses' => 'TestController@update'
+    ]);
+    Route::post('tests/delete', [
+        'uses' => 'TestController@delete'
+    ]);
+
+    Route::get('questions', [
+        'uses' => 'QuestionController@getQuestions'
+    ]);
+    Route::post('questions', [
+        'uses' => 'QuestionController@postQuestion'
+    ]);
+    Route::post('questions/delete', [
+        'uses' => 'QuestionController@delete'
+    ]);
+});
