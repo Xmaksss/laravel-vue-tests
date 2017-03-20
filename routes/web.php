@@ -42,4 +42,11 @@ Route::group(['prefix' => 'api'], function() {
     Route::post('questions/delete', [
         'uses' => 'QuestionController@delete'
     ]);
+
+    Route::get('testing', [
+        'uses' => 'TestingController@getQuestions'
+    ]);
+    Route::post('testing/get-results', [
+        'uses' => 'TestingController@getResults'
+    ]);
 });

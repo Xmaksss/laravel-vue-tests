@@ -30,6 +30,9 @@ class QuestionController extends Controller
 
             foreach($questions as $key => $question) {
                 $questions[$key]['answers'] = json_decode($question['answers']);
+                if($request['t']) {
+                    $questions[$key]['right'] = null;
+                }
             }
 
             $data['questions'] = $questions;

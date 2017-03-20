@@ -8,7 +8,9 @@
                 <tr>
                     <th>Title</th>
                     <th>Count Questions</th>
-                    <th width="180px">Tools</th>
+                    <th width="1%"></th>
+                    <th width="1%"></th>
+                    <th width="1%"></th>
                 </tr>
             </thead>
             <tbody>
@@ -27,10 +29,14 @@
                     </td>
                     <td>
                         <button v-if="testEditing != index" v-on:click="testEdit(index)" class="btn btn-primary">Edit</button>
-                        <button v-if="testEditing != index" v-on:click="testDelete(index)" class="btn btn-danger">Delete</button>
-
                         <button v-if="testEditing == index" v-on:click="testUpdate(index)" class="btn btn-info">Update</button>
+                    </td>
+                    <td>
+                        <button v-if="testEditing != index" v-on:click="testDelete(index)" class="btn btn-danger">Delete</button>
                         <button v-if="testEditing == index" v-on:click="testEditing = null" class="btn btn-default">Cencel</button>
+                    </td>
+                    <td>
+                        <router-link class="btn btn-success" v-bind:to="'testing/' + test.id">Go</router-link>
                     </td>
                 </tr>
             </tbody>
