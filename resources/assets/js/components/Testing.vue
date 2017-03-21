@@ -21,7 +21,8 @@
         </div>
          <hr>
         <button class="btn btn-primary" v-on:click="nextQuestion" v-if="(num+1) < count">Next</button>
-        <button class="btn btn-info" v-on:click="finishTest" v-if="(num+1) >= count">Finish</button>
+        <button class="btn btn-info" v-on:click="finishTest" v-if="(num+1) == count">Finish</button>
+        <button class="btn btn-info" v-on:click="restartTest" v-if="(num+1) > count">Restart</button>
     </div>
 </template>
 
@@ -42,23 +43,26 @@
             }
         },
         mounted() {
-            this.$http.get('/api/testing?test_id=' + this.testId).then(res => {
-                if(res.body.status) {
-                    this.questions = res.body.questions;
-                    this.title = res.body.test.title;
-                    this.count = res.body.test.count_questions;
-                    if(this.count > this.questions.length) {
-                        this.count = this.questions.length
-                    }
-                    console.log(this.questions);
-                } else {
-                    this.$route.router.go('/tests');
-                }
-            }, err => {
-                console.error(err);
-            });
+            this.getQuestions();
         },
         methods: {
+            getQuestions() {
+                this.$http.get('/api/testing?test_id=' + this.testId).then(res => {
+                    if(res.body.status) {
+                        this.questions = res.body.questions;
+                        this.title = res.body.test.title;
+                        this.count = res.body.test.count_questions;
+                        if(this.count > this.questions.length) {
+                            this.count = this.questions.length
+                        }
+                        console.log(this.questions);
+                    } else {
+                        this.$route.router.go('/tests');
+                    }
+                }, err => {
+                    console.error(err);
+                });
+            },
             nextQuestion() {
                 if(this.num <= (this.count-1)) {
                     this.num++;
@@ -80,6 +84,12 @@
                 }, err => {
                     console.error(err);
                 });
+            },
+            restartTest() {
+                this.num = 0;
+                this.getQuestions();
+                this.showResult = false;
+                this.results = 0;
             }
         }
     }

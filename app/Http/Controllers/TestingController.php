@@ -28,12 +28,12 @@ class TestingController extends Controller
             ->join('tests', 'tests.id', '=', 'questions.test_id')
             ->inRandomOrder()
             ->where('tests.id', $request['test_id'])
-            ->limit($test['limit'])
+            ->limit($test['count_questions'])
             ->get();
 
             foreach($questions as $key => $question) {
                 $questions[$key]->answers = json_decode($question->answers);
-                //$questions[$key]->right = null;
+                $questions[$key]->right = null;
             }
 
             $data['questions'] = $questions;
