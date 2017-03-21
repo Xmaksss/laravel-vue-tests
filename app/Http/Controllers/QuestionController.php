@@ -30,6 +30,9 @@ class QuestionController extends Controller
 
             foreach($questions as $key => $question) {
                 $questions[$key]['answers'] = json_decode($question['answers']);
+                if($request['t']) {
+                    $questions[$key]['right'] = null;
+                }
             }
 
             $data['questions'] = $questions;
@@ -78,6 +81,33 @@ class QuestionController extends Controller
         if($test->user_id == Auth::user()->id) {
             $data['status'] = Question::where('id', $request['question_id'])
             ->delete();
+        }
+
+        return response()->json($data, 200);
+    }
+    public function parse(Request $request) {
+        $data = array();
+        $questions = $request['questions'];
+
+        $test = Test::find($request['test_id']);
+
+        $data['status'] = false;
+
+        if($test->user_id == Auth::user()->id) {
+            foreach($questions as $item) {
+                $question = new Question();
+                $question->question = $item['question'];
+                $question->right = $item['right'];
+                $question->type = 'radio';
+                $question->image = '';
+                $question->answers = json_encode($item['ans']);
+                $question->test_id = $test->id;
+                $question->save();
+            }
+            $data['message'] = 'Saved :)';
+            $data['status'] = true;
+        } else {
+            $data['message'] = 'Error :(';
         }
 
         return response()->json($data, 200);

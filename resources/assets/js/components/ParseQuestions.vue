@@ -5,6 +5,12 @@
             <textarea name="text" v-model="text" id="text" rows="10" class="form-control" placeholder="Insert this your text for parsing"></textarea>
         </div>
         <div class="form-group">
+            <label>Test name</label>
+            <select name="test_id" id="test_id" v-model="testID" class="form-control">
+                <option v-for="test in tests" v-bind:value="test.id">{{test.title}}</option>
+            </select>
+        </div>
+        <div class="form-group">
             <button class="btn btn-primary" v-on:click="parse">Parse</button>
         </div>
         <div class="questions">
@@ -20,6 +26,9 @@
                 </li>
             </ul>
         </div>
+        <div class="form-group">
+            <button v-if="testID != null && questions.length > 0" class="btn btn-success" v-on:click="saveQuestions">Save</button>
+        </div>
     </div>
 </template>
 
@@ -28,8 +37,17 @@
         data() {
             return {
                 text: '',
-                questions: []
+                questions: [],
+                tests: [],
+                testID: null
             }
+        },
+        mounted() {
+            this.$http.get('/api/tests').then(res => {
+                this.tests = res.body.tests;
+            }, err => {
+                console.error(err);
+            });
         },
         methods: {
             parse() {
@@ -65,6 +83,23 @@
                 this.questions = questions.filter((item) => {
                     return item.right != undefined && item.ans.length > 1;
                 });
+            },
+            saveQuestions() {
+                let data = {
+                    questions: this.questions,
+                    test_id: this.testID
+                }
+                this.$http.post('/api/questions/parse', data).then(res => {
+                    if(res.data.message) {
+                        alert(res.data.message);
+                    }
+                    if(res.data.status) {
+                        this.text= '';
+                        this.questions = [];
+                    }
+                }, err => {
+
+                })
             }
         }
         

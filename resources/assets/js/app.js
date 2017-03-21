@@ -15,9 +15,7 @@ require('./bootstrap');
 
 import Tests from './components/Tests.vue';
 import TestItem from './components/TestItem.vue';
-
-import Questions from './components/Questions.vue';
-
+import Testing from './components/Testing.vue';
 import ParseQuestions from './components/ParseQuestions.vue';
 
 const router = new VueRouter({
@@ -25,7 +23,7 @@ const router = new VueRouter({
         {path: '/', redirect: '/tests'},
         {path: '/tests', component: Tests},
         {path: '/test/:testId', component: TestItem},
-        {path: '/questions', component: Questions},
+        {path: '/testing/:testId', component: Testing},
         {path: '/parse-questions', component: ParseQuestions}
     ]
 });

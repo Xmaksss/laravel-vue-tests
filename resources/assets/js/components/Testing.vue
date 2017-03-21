@@ -1,0 +1,96 @@
+<template>
+    <div>
+    <h3>{{title}} {{num}}/{{count}}</h3>
+        <hr>
+        <div class="questions">
+            <ul>
+                <li v-for="(question, n) in questions">
+                    <div v-show="n == num">
+                        <div>{{question.question}}</div>
+                        <ul>
+                            <li v-for="(answer, index) in question.answers">
+                                <label><input type="radio" v-model="questions[n].right" v-bind:value="index">{{answer}}</label>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="result" v-if="showResult">
+            <h2 class="text-center">{{results}}% ({{ans}}/{{count}})</h2>
+        </div>
+         <hr>
+        <button class="btn btn-primary" v-on:click="nextQuestion" v-if="(num+1) < count">Next</button>
+        <button class="btn btn-info" v-on:click="finishTest" v-if="(num+1) == count">Finish</button>
+        <button class="btn btn-info" v-on:click="restartTest" v-if="(num+1) > count">Restart</button>
+    </div>
+</template>
+
+<script>
+    export default {
+        data() {
+            return {
+                title: '',
+                count: 1,
+                testId: this.$route.params.testId,
+                questions: [],
+                filteredQuestions: [],
+
+                num: 0,
+                showResult: false,
+                results: 0,
+                ans: 0
+            }
+        },
+        mounted() {
+            this.getQuestions();
+        },
+        methods: {
+            getQuestions() {
+                this.$http.get('/api/testing?test_id=' + this.testId).then(res => {
+                    if(res.body.status) {
+                        this.questions = res.body.questions;
+                        this.title = res.body.test.title;
+                        this.count = res.body.test.count_questions;
+                        if(this.count > this.questions.length) {
+                            this.count = this.questions.length
+                        }
+                        console.log(this.questions);
+                    } else {
+                        this.$route.router.go('/tests');
+                    }
+                }, err => {
+                    console.error(err);
+                });
+            },
+            nextQuestion() {
+                if(this.num <= (this.count-1)) {
+                    this.num++;
+                }
+            },
+            finishTest() {
+                this.num++;
+                //console.log(this.questions);
+                let answers = [];
+
+                this.questions.forEach((item) => {
+                    answers.push({question_id: item.id, answer: item.right});
+                });
+
+                this.$http.post('/api/testing/get-results', {answers}).then(res => {
+                    this.showResult = true;
+                    this.results = res.body.results;
+                    this.ans = res.body.count;
+                }, err => {
+                    console.error(err);
+                });
+            },
+            restartTest() {
+                this.num = 0;
+                this.getQuestions();
+                this.showResult = false;
+                this.results = 0;
+            }
+        }
+    }
+</script>
