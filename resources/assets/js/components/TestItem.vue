@@ -26,7 +26,7 @@
         <div class="questions">
             <ul>
                 <li v-for="(question, n) in questions">
-                    <div v-show="editQuestionId != n">{{question.question}} 
+                    <div v-show="editQuestionId != n"><b>{{question.question}}</b>
                         <span class="pull-right">
                             <button class="btn btn-info btn-xs" v-on:click="editQuestion(n)">Edit</button>
                             <button class="btn btn-danger btn-xs" v-on:click="deleteQuestion(n)">&times;</button>
@@ -48,8 +48,7 @@
                     </ul>
                     <ul v-show="editQuestionId == n">
                         <li v-for="(answer, index) in eAnswers">
-                            <input type="radio" v-model="eRight" v-bind:value="index">
-                            <label v-bind:class="{ right: eRight == index }">{{answer}}</label>
+                            <label v-bind:class="{ right: eRight == index }"><input type="radio" v-model="eRight" v-bind:value="index"> {{answer}}</label>
                         </li>
                     </ul>
                     <hr>

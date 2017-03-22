@@ -47,16 +47,23 @@ class TestingController extends Controller
     public function getResults(Request $request) {
         $data = array();
         $result = 0;
-        $weight = round(100/count($request['answers']), 2);
+        $weight = round(100/count($request['answers']), 5);
         $count = 0;
+        $questions = array();
 
         foreach($request['answers'] as $answer) {
-            if(Question::find($answer['question_id'])->right == $answer['answer']) {
+            $question = Question::find($answer['question_id']);
+            $question->answer = $answer['answer'];
+            $question->answers = json_decode($question->answers);
+            $questions[] = $question;
+
+            if($question->right == $answer['answer']) {
                 $result += $weight;
                 $count++;
             }
         }
-        $data['results'] = $result;
+        $data['questions'] = $questions;
+        $data['results'] = round($result, 2);
         $data['count'] = $count;
 
         return response()->json($data, 200);

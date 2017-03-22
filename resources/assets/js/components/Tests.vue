@@ -1,27 +1,33 @@
 <template>
     <div id="tests">
-        <button class="btn btn-success" v-if="!showForm" v-on:click="showForm = true">Add new test</button>
+        <div class="form-group">
+            <button class="btn btn-success" v-if="!showForm" v-on:click="showForm = true">Add new test</button>
+        </div>
+
         <add-test-form v-if="showForm" v-on:testAdded="testAdded" v-on:cancelForm="cancelForm"></add-test-form>
 
-        <table class="table">
+        <div class="form-group">
+            <input type="text" v-model="search" class="form-control" placeholder="Search">
+        </div>
+        <table class="table table-striped">
             <thead>
                 <tr>
                     <th>Title</th>
-                    <th>Count Questions</th>
+                    <th>Count</th>
                     <th width="1%"></th>
                     <th width="1%"></th>
                     <th width="1%"></th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(test,index) in tests">
+                <tr v-for="(test,index) in filterTests">
                     <td>
                         <span v-if="testEditing != index" v-on:dblclick="testEdit(index)"><router-link v-bind:to="'test/' + test.id">{{test.title}}</router-link></span>
                         <div class="form-group" v-else>
                             <input type="text" class="form-control" v-model="title">
                         </div>
                     </td>
-                    <td>
+                    <td class="text-center">
                         <span v-if="testEditing != index">{{test.count_questions}}</span>
                         <div class="form-group" v-else>
                             <input type="number" min="1" class="form-control" v-model="countQuestions">
@@ -35,7 +41,7 @@
                         <button v-if="testEditing != index" v-on:click="testDelete(index)" class="btn btn-danger">Delete</button>
                         <button v-if="testEditing == index" v-on:click="testEditing = null" class="btn btn-default">Cencel</button>
                     </td>
-                    <td>
+                    <td v-if="testEditing != index">
                         <router-link class="btn btn-success" v-bind:to="'testing/' + test.id">Go</router-link>
                     </td>
                 </tr>
@@ -51,6 +57,8 @@
     export default {
         data() {
             return {
+                search: '',
+
                 showForm: false,
                 tests: [],
                 testEditing: null,
@@ -114,6 +122,14 @@
                         console.error(err);
                     })
                 }
+            }
+        },
+        computed: {
+            filterTests() {
+                var self = this
+                return self.tests.filter(function (test) {
+                    return test.title.indexOf(self.search) !== -1
+                })
             }
         }
     }
