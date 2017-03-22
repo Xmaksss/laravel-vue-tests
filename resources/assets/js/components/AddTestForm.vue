@@ -15,6 +15,7 @@
             <button class="btn btn-primary" type="submit">Save</button>
             <button class="btn btn-default" type="button" v-on:click="cancelForm">Cancel</button>
         </div>
+        <hr>
     </form>
 </template>
 
