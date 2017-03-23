@@ -56,11 +56,17 @@
                 rows.forEach(function(item, key) {
                     item = item.trim();
                     
-                    if(item.substr(-1) == ':') {
-                        var q = item.slice(item.split(" ")[0].length+1);
+
+                    if([':', '?'].indexOf(item.substr(-1)) != -1) {
+                        var q = item;
+
+                        if(typeof item.substr(1) == 'number') {
+                            q = item.slice(item.split(" ")[0].length+1);
+                        }
+                        
                         questions.push({question: q, ans: [], right: undefined});
                     } else {
-
+                        item = item.replace('¬', '');
                         if(item.includes('**')) {
                             item = item.split("**");
                             item = item[1];
