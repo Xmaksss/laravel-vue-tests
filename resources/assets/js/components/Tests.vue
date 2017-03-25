@@ -21,14 +21,14 @@
             </thead>
             <tbody>
                 <tr v-for="(test,index) in filterTests">
-                    <td>
+                    <td v-bind:colspan="testEditing == index ? 2 : 1">
                         <span v-if="testEditing != index" v-on:dblclick="testEdit(index)"><router-link v-bind:to="'test/' + test.id">{{test.title}}</router-link></span>
                         <div class="form-group" v-else>
                             <input type="text" class="form-control" v-model="title">
                         </div>
                     </td>
                     <td class="text-center">
-                        <span v-if="testEditing != index">{{test.count_questions}}</span>
+                        <span v-if="testEditing != index">{{test.count_questions}} ({{test.questions_count}})</span>
                         <div class="form-group" v-else>
                             <input type="number" min="1" class="form-control" v-model="countQuestions">
                         </div>
@@ -75,6 +75,7 @@
                 this.tests = res.body.tests;
             }, err => {
                 console.error(err);
+                alertify.error('Error! :(');
             });
         },
         methods: {
@@ -98,30 +99,33 @@
                 }
                 this.$http.post('/api/tests/update', data).then(res => {
                     if(res.body.status) {
+                        alertify.success('Test was update :)');
                         this.testEditing = null;
                         this.tests[index].title = this.title;
                         this.tests[index].count_questions = this.countQuestions;
                     }
                 }, err => {
-
+                    alertify.error('Error! :(');
                 });
             },
             testDelete(index) {
                 let data = {
                     test_id: this.tests[index].id
                 }
-                if(confirm('Delete test?', false)) {
+                 alertify.confirm('Delete Test?', 'Deleting', () => {
                     this.$http.post('/api/tests/delete', data).then(res => {
                    
                         if(res.body.status) {
+                            alertify.success('Test was delete');
                             this.tests.splice(index, 1);
                         } else {
-                            console.log('Error');
+                            alertify.error('Error! :(');
                         }
                     }, err => {
                         console.error(err);
+                        alertify.error('Error! :(');
                     })
-                }
+                 }, () => {}).set('labels', {ok:'Yes', cancel:'Cancel'});;
             }
         },
         computed: {
@@ -134,3 +138,9 @@
         }
     }
 </script>
+
+<style>
+    input[type=number] {
+        padding-right: 2px;
+    }
+</style>

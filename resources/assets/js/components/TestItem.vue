@@ -24,31 +24,18 @@
         </form>
         <hr>
         <div class="questions">
+        {{eAnswers}}
             <ul>
                 <li v-for="(question, n) in questions">
-                    <div v-show="editQuestionId != n"><b>{{question.question}}</b>
+                    <div><b>{{question.question}}</b>
                         <span class="pull-right">
                             <button class="btn btn-info btn-xs" v-on:click="editQuestion(n)">Edit</button>
                             <button class="btn btn-danger btn-xs" v-on:click="deleteQuestion(n)">&times;</button>
                         </span>
                     </div>
-                    <div v-show="editQuestionId == n">
-                        <div class="form-group">
-                            <input type="text" class="form-control" v-model="eQuestion">
-                        </div> 
-                        <span class="pull-right">
-                            <button class="btn btn-success btn-xs" v-on:click="UpdateQuestion(n)">Save</button>
-                            <button class="btn btn-default btn-xs" v-on:click="editQuestionId = null">Cancel</button>
-                        </span>
-                    </div>
-                    <ul v-show="editQuestionId != n">
+                    <ul>
                         <li v-for="(answer, index) in question.answers">
                             <label v-bind:class="{ right: questions[n].right == index }">{{answer}}</label>
-                        </li>
-                    </ul>
-                    <ul v-show="editQuestionId == n">
-                        <li v-for="(answer, index) in eAnswers">
-                            <label v-bind:class="{ right: eRight == index }"><input type="radio" v-model="eRight" v-bind:value="index"> {{answer}}</label>
                         </li>
                     </ul>
                     <hr>
@@ -59,6 +46,7 @@
 </template>
 
 <script>
+
     export default {
         data() {
             return {
@@ -73,10 +61,7 @@
 
                 fields_errors: [],
 
-                editQuestionId: null,
-                eQuestion: '',
-                eAnswers: [],
-                eRight: null,
+                eQuestion: {question: '', answers: [], right: null}
             }
         },
         mounted() {
@@ -85,7 +70,7 @@
                     this.questions = res.body.questions;
                     this.title = res.body.test.title;
                     this.count = res.body.test.count_questions;
-                    console.log(this.questions);
+                    //console.log(this.questions);
                 } else {
                     this.$route.router.go('/tests');
                 }
@@ -129,21 +114,20 @@
                 let data = {
                     question_id: this.questions[item].id
                 }
-                if(confirm('Delete Qustion?', false)) {
+                alertify.confirm('Delete Question?', 'Deleting', () => { 
                     this.$http.post('/api/questions/delete', data).then(res => {
                         if(res.body.status) {
+                            alertify.success('Question was delete');
                             this.questions.splice(item, 1);
                         }
                     }, err => {
-
+                        alertify.error('Error! :(')
                     });
-                }
+                }, () => {}).set('labels', {ok:'Yes', cancel:'Cancel'});
             },
             editQuestion(n) {
-                this.editQuestionId = n;
-                this.eQuestion = this.questions[n].question;
-                this.eAnswers = this.questions[n].answers;
-                this.eRight = this.questions[n].right;
+                console.log(n, this.questions[n]);
+                this.eQuestion = this.questions[n];
             }
         }
     }

@@ -97,14 +97,16 @@
                 }
                 this.$http.post('/api/questions/parse', data).then(res => {
                     if(res.data.message) {
-                        alert(res.data.message);
+                        alertify.success(res.data.message);
                     }
                     if(res.data.status) {
                         this.text= '';
                         this.questions = [];
+                    } else {
+                        alertify.success('Error :(');
                     }
                 }, err => {
-
+                    alertify.success('Error :(');
                 })
             }
         }
