@@ -19,7 +19,7 @@ class TestController extends Controller
     public function getTests() {
         $data = array();
 
-        $data['tests'] = Auth::user()->tests()->get();
+        $data['tests'] = Auth::user()->tests()->withCount('questions')->get();
 
         return response()->json($data, 200);
     }

@@ -42,6 +42,9 @@ Route::group(['prefix' => 'api'], function() {
     Route::post('questions/delete', [
         'uses' => 'QuestionController@delete'
     ]);
+    Route::post('questions/update', [
+        'uses' => 'QuestionController@update'
+    ]);
     Route::post('questions/parse', [
         'uses' => 'QuestionController@parse'
     ]);
