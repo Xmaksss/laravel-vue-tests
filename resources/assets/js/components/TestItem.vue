@@ -13,7 +13,7 @@
             <div class="form-group answer" v-for="(answer, index) in answers">
                 <input type="radio" v-model="right" v-bind:value="index">
                 <input type="text" class="form-control" v-model="answers[index]" placeholder="Answer">
-                <button class="btn btn-danger" v-on:click="deleteAnswer(index)">Delete</button>
+                <button class="btn btn-danger" v-on:click="deleteAnswer(index)">&times;</button>
             </div>
             <div class="form-group">
                 <button class="btn btn-info btn-xs" type="button" v-on:click="addAnswer">Add answer</button>
@@ -24,18 +24,32 @@
         </form>
         <hr>
         <div class="questions">
-        {{eAnswers}}
             <ul>
                 <li v-for="(question, n) in questions">
-                    <div><b>{{question.question}}</b>
-                        <span class="pull-right">
-                            <button class="btn btn-info btn-xs" v-on:click="editQuestion(n)">Edit</button>
+                    <div>
+                        <b v-if="editID != n">{{question.question}}</b>
+                        <div class="form-group">
+                            <input type="text" v-bind:class="{'form-control': 1, 'has-error': fields_errors.question}" v-model="eQuestion.question" v-if="editID == n">
+                        </div>
+                        <span class="pull-right" v-if="editID != n">
+                            <button class="btn btn-info btn-xs" v-on:click="editQuestion(question, n)">Edit</button>
                             <button class="btn btn-danger btn-xs" v-on:click="deleteQuestion(n)">&times;</button>
                         </span>
+                        <span class="pull-right" v-if="editID == n">
+                            <button class="btn btn-info btn-xs" v-on:click="updateQuestion(question, n)">Update</button>
+                            <button class="btn btn-default btn-xs" v-on:click="editID = null">Cancel</button>
+                        </span>
                     </div>
-                    <ul>
+                    <ul v-if="editID != n">
                         <li v-for="(answer, index) in question.answers">
                             <label v-bind:class="{ right: questions[n].right == index }">{{answer}}</label>
+                        </li>
+                    </ul>
+                    <ul class="answer" v-if="editID == n">
+                        <li v-for="(answer, index) in eQuestion.answers">
+                            <input type="radio" v-model="eQuestion.right" v-bind:value="index">
+                            <input type="text" class="form-control" v-model="eQuestion.answers[index]">
+                            <button class="btn btn-danger" v-on:click="delAns(index)">&times;</button>
                         </li>
                     </ul>
                     <hr>
@@ -46,7 +60,6 @@
 </template>
 
 <script>
-
     export default {
         data() {
             return {
@@ -61,7 +74,8 @@
 
                 fields_errors: [],
 
-                eQuestion: {question: '', answers: [], right: null}
+                eQuestion: {question: '', answers: [], right: null},
+                editID: null
             }
         },
         mounted() {
@@ -83,7 +97,7 @@
                 this.answers.push('');
             },
             deleteAnswer(index) {
-                if(this.answers.length > 1) {
+                if(this.answers.length > 2) {
                     this.answers.splice(index, 1);
                 }
             },
@@ -125,9 +139,52 @@
                     });
                 }, () => {}).set('labels', {ok:'Yes', cancel:'Cancel'});
             },
-            editQuestion(n) {
-                console.log(n, this.questions[n]);
-                this.eQuestion = this.questions[n];
+            editQuestion(question, n) {
+                let self = this;
+                this.editID = n;
+                this.eQuestion = {
+                    question: question.question,
+                    right: question.right,
+                    answers: []
+                };
+                question.answers.forEach(item => {
+                    self.eQuestion.answers.push(item);
+                });
+            },
+            delAns(index) {
+                if(this.eQuestion.answers.length > 2) {
+                    this.eQuestion.answers.splice(index, 1);
+                }
+            },
+            updateQuestion(question, index) {
+                let data = {
+                    question_id: question.id,
+                    question: this.eQuestion.question,
+                    answers: this.eQuestion.answers,
+                    right: this.eQuestion.right
+                }
+                console.log(this.questions[index]);
+                this.$http.post('/api/questions/update', data).then(res => {
+                    if(res.body.status) {
+                        this.editID = null;
+                        this.fields_errors = [];
+                        this.questions[index].question = this.eQuestion.question;
+                        this.questions[index].answers = this.eQuestion.answers;
+                        this.questions[index].right = this.eQuestion.right;
+                        alertify.success('Question was update');
+                    } else {
+                        alertify.error('Question wasn\'t update :(');
+                    }
+
+                    if(res.body.message) {
+                        alertify.error(res.body.message);
+                    }
+                    
+                }, err => {
+                    if(err.body) {
+                        this.fields_errors = err.body;
+                    }
+                });
             }
         }
     }
@@ -140,8 +197,11 @@
         margin-right: 10px;
     }
     .answer .form-control{
-        width: 500px;
+        width: 450px;
         float: left;
         margin-right: 10px;
+    }
+    .answer li {
+        margin-top: 4px;
     }
 </style>
