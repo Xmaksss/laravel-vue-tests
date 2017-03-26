@@ -85,6 +85,30 @@ class QuestionController extends Controller
 
         return response()->json($data, 200);
     }
+
+    public function update(ValidQuestion $request) {
+        $data = array();
+        $data['$request'] = $request->all();
+        $data['status'] = false;
+
+        $question = Question::find($request['question_id']);
+
+        $test = $question->test()->first();
+
+        if($test->user_id == Auth::user()->id) {
+            $data['status'] = $question
+            ->update([
+                'question' => $request['question'],
+                'right' =>  $request['right'],
+                'answers' => json_encode($request['answers'])
+            ]);
+        } else {
+            $message = 'Permission denied!';
+        }
+
+        return response()->json($data, 200);
+    }
+
     public function parse(Request $request) {
         $data = array();
         $questions = $request['questions'];
